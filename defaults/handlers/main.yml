@@ -1,0 +1,22 @@
+---
+ - name: reboot server
+   at: command="/sbin/reboot" count=1 units=minutes
+
+ - name: wait for reboot
+   local_action: wait_for delay={{ reboot_delay|default(300) }} timeout=1200 host={{ inventory_hostname }} port=22
+   become: False
+
+ - name: restart rsyslog
+   service: name=rsyslog state=restarted
+
+ - name: restart network
+   service: name=network state=restarted
+
+ - name: restart crond
+   service: name=crond state=restarted
+
+ - name: restart_all_udev
+   command: /sbin/start_udev && sleep 60 
+
+ - name: reload all facts
+   setup: 

@@ -1,0 +1,11 @@
+---
+- name: "Patch node"
+  package: name=* state=latest
+  register: update_cmd
+  changed_when: '"kernel" in update_cmd.results[0] or "glibc" in update_cmd.results[0] or "ntpdate" in update_cmd.results[0]'
+  notify:
+    - reboot server
+    - wait for reboot
+  tags: patch
+
+- meta: flush_handlers
