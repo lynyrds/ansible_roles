@@ -1,0 +1,14 @@
+---
+- name: check if all cluster nodes are active and healthy
+  shell: "{{ cb_cli }} server-list -c localhost -u {{ cb_admin }} -p {{ cb_admin_password }} | grep -v 'healthy active'"
+  failed_when: false
+  register: cb_health
+
+- name: fail if cluster nodes are not active and healthy
+  fail:
+    msg: "{{ cb_health.stdout_lines }}"
+  when: cb_health.rc != 1
+
+- name: check if cluster is balanced, and number of Active/Replica Vbuckets are valid
+  script: balance_check.py {{ inventory_hostname }} {{ cb_admin }} {{ cb_admin_password }}  
+  register: reg_balanced
